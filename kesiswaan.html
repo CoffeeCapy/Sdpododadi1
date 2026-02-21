@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kesiswaan & Galeri - SDN PODODADI 1</title>
     <style>
-        /* CSS SERAGAM DENGAN HALAMAN UTAMA */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
         body { background-color: #f0f2f5; color: #333; }
         
@@ -13,103 +12,97 @@
         header img { width: 80px; margin-bottom: 10px; }
         
         nav { background: #333; display: flex; justify-content: center; position: sticky; top: 0; z-index: 1000; }
-        nav a { color: white; padding: 14px 20px; text-decoration: none; font-size: 14px; transition: 0.3s; }
+        nav a { color: white; padding: 14px 20px; text-decoration: none; font-size: 14px; }
         nav a:hover { background-color: #ffcc00; color: #333; }
 
-        .container { max-width: 1200px; margin: 20px auto; display: flex; gap: 20px; padding: 0 15px; }
-        .main-content { flex: 3; }
-        .sidebar { flex: 1; }
-
-        /* Card Style */
-        .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        h2 { color: #004a99; border-bottom: 2px solid #ffcc00; display: inline-block; margin-bottom: 20px; }
-        h3 { color: #004a99; margin-bottom: 15px; }
-
-        /* Grid Galeri Foto */
-        .gallery-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 15px; margin-top: 20px;
-        }
-        .gallery-item { background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #ddd; text-align: center; }
-        .gallery-item img { width: 100%; height: 200px; object-fit: cover; border-radius: 5px; }
-        .gallery-item p { margin-top: 8px; font-size: 14px; font-weight: bold; }
-
-        /* Tombol Upload */
-        .upload-section { background: #ffcc00; padding: 20px; border-radius: 8px; text-align: center; border: 2px dashed #004a99; }
-        .btn-upload { background: #004a99; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; margin-top: 10px; font-weight: bold; }
-
-        footer { background: #222; color: white; padding: 30px; text-align: center; margin-top: 40px; }
+        .container { max-width: 1200px; margin: 20px auto; padding: 0 15px; }
         
-        @media (max-width: 768px) { .container { flex-direction: column; } }
+        .gallery-header { 
+            background: white; padding: 30px; border-radius: 12px; 
+            text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 30px; border-top: 5px solid #004a99;
+        }
+        .gallery-header h2 { color: #004a99; margin-bottom: 5px; }
+
+        /* Grid Foto Kegiatan */
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px; margin-bottom: 40px;
+        }
+        .photo-card {
+            background: white; border-radius: 10px; overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: 0.3s;
+        }
+        .photo-card:hover { transform: scale(1.02); }
+        .photo-card img { width: 100%; height: 250px; object-fit: cover; }
+        .photo-card .caption { padding: 15px; text-align: center; font-weight: 600; color: #004a99; border-top: 1px solid #eee; }
+
+        /* Info Ekstrakurikuler */
+        .extra-section {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+            background: white; padding: 30px; border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .extra-section h3 { color: #004a99; border-left: 5px solid #ffcc00; padding-left: 15px; margin-bottom: 15px; }
+        .extra-list { list-style: none; margin-top: 10px; }
+        .extra-list li { margin-bottom: 12px; padding: 8px 15px; background: #f8f9fa; border-radius: 5px; border-left: 3px solid #004a99; }
+
+        footer { background: #222; color: white; padding: 30px; text-align: center; margin-top: 50px; }
+        
+        @media (max-width: 768px) { .extra-section { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
 <header>
-    <img src="logo.png" alt="Logo Tut Wuri Handayani">
+    <img src="logo.png" alt="Logo">
     <h1>SDN PODODADI 1</h1>
-    <p>Kesiswaan & Dokumentasi Kegiatan</p>
+    <p>Bidang Kesiswaan & Galeri Kegiatan</p>
 </header>
 
 <nav>
     <a href="index.html">Beranda</a>
-    <a href="profil.html">Profil Sekolah</a>
-    <a href="guru.html">Data Guru</a>
+    <a href="profil.html">Profil</a>
+    <a href="guru.html">Guru</a>
     <a href="kesiswaan.html">Kesiswaan</a>
     <a href="kontak.html">Kontak</a>
 </nav>
 
 <div class="container">
-    <div class="main-content">
-        <div class="card">
-            <h2>Galeri Foto Kegiatan</h2>
-            <p>Dokumentasi momen-momen berharga siswa SDN Pododadi 1.</p>
-            
-            <div class="gallery-grid">
-                <div class="gallery-item">
-                    <img src="11876.jpg" alt="Upacara">
-                    <p>Upacara Bendera</p>
-                </div>
-                <div class="gallery-item">
-                    <img src="11879.jpg" alt="Barisan Siswa">
-                    <p>Barisan Siswa Tertib</p>
-                </div>
-                <div class="gallery-item">
-                    <img src="https://via.placeholder.com/400x300" alt="Kegiatan">
-                    <p>Kegiatan Ekstrakurikuler</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="upload-section" style="background: #ffcc00; padding: 20px; border-radius: 8px; text-align: center; border: 2px dashed #004a99; margin-top: 20px;">
-    <h3>Punya Foto Kegiatan?</h3>
-    <p>Silakan upload foto kegiatan sekolah untuk kami tampilkan di sini.</p>
-    
-    <a href="https://docs.google.com/forms/d/e/1FAIpQLSccWriEe327wqqfVeqoAsHT0bFUDIgmha1uC2Bfq6p6kwZQsg/viewform?usp=sf_link" 
-       target="_blank" 
-       class="btn-upload" 
-       style="background: #004a99; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; display: inline-block; margin-top: 10px; font-weight: bold;">
-       📸 Kirim Foto Sekarang
-    </a>
-</div>
-
+    <div class="gallery-header">
+        <h2>Galeri Kegiatan Siswa</h2>
+        <p>Dokumentasi aktivitas belajar dan kreativitas di SDN Pododadi 1</p>
     </div>
 
-    <div class="sidebar">
-        <div class="widget card">
-            <h3>Ekstrakurikuler</h3>
-            <ul style="list-style: none; line-height: 2; font-size: 14px;">
-                <li>🚩 Pramuka (Wajib)</li>
-                <li>⚽ Olahraga</li>
-                <li>🎨 Seni Tari</li>
-                <li>📖 BTQ / Rohis</li>
+    <div class="photo-grid">
+        <div class="photo-card">
+            <img src="upacara.jpg" alt="Upacara">
+            <div class="caption">Upacara Bendera Hari Senin</div>
+        </div>
+        <div class="photo-card">
+            <img src="11879.jpg" alt="Kegiatan">
+            <div class="caption">Pembiasaan Karakter Siswa</div>
+        </div>
+        <div class="photo-card">
+            <img src="https://via.placeholder.com/400x300" alt="Lomba">
+            <div class="caption">Dokumentasi Lomba Siswa</div>
+        </div>
+    </div>
+
+    <div class="extra-section">
+        <div>
+            <h3>Program Ekstrakurikuler</h3>
+            <ul class="extra-list">
+                <li>⭐ Pramuka (Ekstrakurikuler Wajib)</li>
+                <li>⚽ Olahraga & Kesehatan</li>
+                <li>🎨 Seni Budaya & Tari</li>
+                <li>📖 Baca Tulis Al-Qur'an (BTQ)</li>
             </ul>
         </div>
-        
-        <div class="widget card">
-            <h3>Agenda Terdekat</h3>
-            <p style="font-size: 13px;">Persiapan Ujian Semester Genap 2026</p>
+        <div>
+            <h3>Visi Kesiswaan</h3>
+            <p style="line-height: 1.8;">Membentuk siswa yang tidak hanya cerdas secara akademik, tetapi juga memiliki karakter yang kuat, disiplin tinggi, serta bakat yang tersalurkan melalui kegiatan non-akademik yang positif.</p>
         </div>
     </div>
 </div>
