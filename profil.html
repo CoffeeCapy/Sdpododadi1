@@ -5,13 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profil Sekolah - SDN PODODADI 1</title>
     <style>
-        /* Copas semua CSS dari index.html ke sini */
-        /* ... (tambahkan CSS yang tadi) ... */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #f0f2f5; color: #333; }
+        
+        /* Header Biru */
+        header { background: #004a99; color: white; padding: 25px; text-align: center; border-bottom: 5px solid #ffcc00; }
+        header img { width: 70px; margin-bottom: 10px; }
+        
+        /* Navigasi Gelap */
+        nav { background: #333; display: flex; justify-content: center; position: sticky; top: 0; z-index: 1000; }
+        nav a { color: white; padding: 14px 20px; text-decoration: none; font-size: 14px; }
+        nav a:hover { background-color: #ffcc00; color: #333; }
+
+        /* Banner Hero dengan Background Foto Upacara */
+        .hero-profil {
+            background: linear-gradient(rgba(0, 74, 153, 0.8), rgba(0, 74, 153, 0.8)), url('upacara.jpg');
+            background-size: cover; background-position: center;
+            color: white; padding: 60px 20px; text-align: center;
+        }
+
+        .container { max-width: 1000px; margin: 20px auto; display: flex; gap: 20px; padding: 0 15px; }
+        .main-content { flex: 3; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .sidebar { flex: 1; }
+        
+        .widget { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        h3 { color: #004a99; margin-bottom: 15px; border-left: 5px solid #ffcc00; padding-left: 10px; }
+        ul { margin-left: 20px; line-height: 1.8; }
+        footer { background: #222; color: white; padding: 20px; text-align: center; margin-top: 40px; }
+        
+        @media (max-width: 768px) { .container { flex-direction: column; } }
     </style>
 </head>
 <body>
 
 <header>
+    <img src="logo.png" alt="Logo">
     <h1>SDN PODODADI 1</h1>
     <p>Profil Lengkap Sekolah</p>
 </header>
@@ -23,28 +51,33 @@
     <a href="kontak.html">Kontak</a>
 </nav>
 
+<div class="hero-profil">
+    <h2>Visi dan Misi Sekolah</h2>
+    <p>Membentuk karakter siswa yang unggul dan berbudaya lingkungan</p>
+</div>
+
 <div class="container">
     <div class="main-content">
-        <div class="hero">
-            <h2>Visi dan Misi</h2>
-            <hr><br>
-            <h3>Visi</h3>
-            <p>"Terwujudnya siswa yang religius, cerdas, dan mandiri."</p>
-            <br>
-            <h3>Misi</h3>
-            <ul>
-                <li>Melaksanakan pembelajaran yang aktif dan inovatif.</li>
-                <li>Menanamkan nilai budi pekerti luhur.</li>
-                <li>Mengembangkan bakat minat melalui ekstrakurikuler.</li>
-            </ul>
-        </div>
+        <h3>Visi Sekolah</h3>
+        <p style="font-style: italic; font-size: 18px; margin-bottom: 30px;">
+            "Terwujudnya murid yang berakhlak mulia, berkarakter, berprestasi, dan berwawasan lingkungan."
+        </p>
+
+        <h3>Misi Sekolah</h3>
+        <ul>
+            <li>Melaksanakan pembelajaran yang aktif, kreatif, dan inovatif.</li>
+            <li>Menanamkan nilai-nilai religius dan budi pekerti luhur.</li>
+            <li>Menciptakan lingkungan sekolah yang aman, nyaman, dan asri.</li>
+            <li>Mengembangkan potensi bakat dan minat siswa melalui kegiatan ekstrakurikuler.</li>
+        </ul>
     </div>
-    
+
     <div class="sidebar">
         <div class="widget">
-            <h3>Informasi Lain</h3>
-            <p>Berdiri sejak: 19XX</p>
-            <p>Akreditasi: A</p>
+            <h4 style="color:#004a99">Informasi Lain</h4>
+            <p style="font-size: 14px; margin-top: 10px;">Berdiri sejak: 1985</p>
+            <p style="font-size: 14px;">Akreditasi: A</p>
+            <p style="font-size: 14px;">Status: Negeri</p>
         </div>
     </div>
 </div>
