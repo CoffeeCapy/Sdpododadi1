@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar Guru - SDN PODODADI 1</title>
+    <title>Struktur Organisasi - SDN PODODADI 1</title>
     <style>
-        /* CSS SERAGAM */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
         body { background-color: #f4f7f9; color: #333; }
         
@@ -16,47 +15,35 @@
         nav a { color: white; padding: 14px 20px; text-decoration: none; font-size: 14px; }
         nav a:hover { background-color: #ffcc00; color: #333; }
 
-        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
-        h2 { color: #004a99; text-align: center; margin-bottom: 30px; border-bottom: 3px solid #ffcc00; display: inline-block; padding-bottom: 5px; }
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; text-align: center; }
+        h2 { color: #004a99; margin-bottom: 40px; border-bottom: 3px solid #ffcc00; display: inline-block; padding-bottom: 5px; }
 
-        /* Gaya Struktur Kepala Sekolah (Paling Atas) */
-        .kepala-sekolah {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 50px;
-        }
-
-        /* Gaya Grid Guru */
+        /* Kepala Sekolah Card */
+        .kepala-box { display: flex; justify-content: center; margin-bottom: 40px; }
+        
+        /* Grid Guru & Staf */
         .guru-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 25px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
         }
 
-        /* Kartu Guru */
-        .guru-card {
+        .card {
             background: white;
-            border-radius: 12px;
+            border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            text-align: center;
-            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             border-top: 4px solid #004a99;
+            transition: 0.3s;
         }
-        .guru-card:hover { transform: translateY(-5px); }
-        
-        .guru-card img {
-            width: 100%;
-            height: 250px;
-            object-fit: cover; /* Agar foto tidak gepeng */
-            background-color: #ddd;
-        }
-
-        .guru-info { padding: 15px; }
-        .guru-info h3 { font-size: 16px; color: #004a99; margin-bottom: 5px; }
-        .guru-info p { font-size: 14px; color: #666; }
+        .card:hover { transform: translateY(-5px); }
+        .card img { width: 100%; height: 220px; object-fit: cover; background-color: #eee; }
+        .info { padding: 15px; }
+        .info h3 { font-size: 15px; color: #004a99; margin-bottom: 5px; }
+        .info p { font-size: 13px; color: #666; font-weight: bold; }
 
         footer { background: #222; color: white; padding: 30px; text-align: center; margin-top: 50px; }
+        @media (max-width: 600px) { .guru-grid { grid-template-columns: 1fr 1fr; } }
     </style>
 </head>
 <body>
@@ -64,7 +51,7 @@
 <header>
     <img src="logo.png" alt="Logo">
     <h1>SDN PODODADI 1</h1>
-    <p>Tenaga Pendidik dan Kependidikan</p>
+    <p>Tenaga Pendidik & Kependidikan</p>
 </header>
 
 <nav>
@@ -75,13 +62,13 @@
     <a href="kontak.html">Kontak</a>
 </nav>
 
-<div class="container" style="text-align: center;">
+<div class="container">
     <h2>Struktur Organisasi Sekolah</h2>
 
-    <div class="kepala-sekolah">
-        <div class="guru-card" style="width: 280px; border-top: 5px solid #ffcc00;">
-            <img src="foto-subandi.jpg" alt="Kepala Sekolah">
-            <div class="guru-info">
+    <div class="kepala-box">
+        <div class="card" style="width: 250px; border-top-color: #ffcc00;">
+            <img src="guru1.jpg" alt="Kepala Sekolah">
+            <div class="info">
                 <h3>Subandi, S.Pd</h3>
                 <p>Kepala Sekolah</p>
             </div>
@@ -89,60 +76,21 @@
     </div>
 
     <div class="guru-grid">
-        <div class="guru-card">
-            <img src="foto-endang.jpg" alt="Guru Kelas 1A">
-            <div class="guru-info">
-                <h3>Endang Setiowaty, S.Pd</h3>
-                <p>Guru Kelas 1A</p>
-            </div>
-        </div>
-
-        <div class="guru-card">
-            <img src="foto-anggi.jpg" alt="Guru Kelas 1B">
-            <div class="guru-info">
-                <h3>Anggi Tilaras, S.Pd</h3>
-                <p>Guru Kelas 1B</p>
-            </div>
-        </div>
-
-        <div class="guru-card">
-            <img src="foto-ahmad.jpg" alt="Guru Kelas 2">
-            <div class="guru-info">
-                <h3>Ahmad Badowi, S.Pd</h3>
-                <p>Guru Kelas 2</p>
-            </div>
-        </div>
-    <div class="guru-grid">
-        <div class="guru-card">
-            <img src="foto-endang.jpg" alt="Guru Kelas 1A">
-            <div class="guru-info">
-                <h3>Endang Setiowaty, S.Pd</h3>
-                <p>Guru Kelas 1A</p>
-            </div>
-        </div>
-
-        <div class="guru-card">
-            <img src="foto-anggi.jpg" alt="Guru Kelas 1B">
-            <div class="guru-info">
-                <h3>Anggi Tilaras, S.Pd</h3>
-                <p>Guru Kelas 1B</p>
-            </div>
-        </div>
-
-        <div class="guru-card">
-            <img src="foto-ahmad.jpg" alt="Guru Kelas 2">
-            <div class="guru-info">
-                <h3>Ahmad Badowi, S.Pd</h3>
-                <p>Guru Kelas 2</p>
-            </div>
-        </div>
-
-        </div>
+        <div class="card"><img src="guru2.jpg"><div class="info"><h3>Endang Setiowaty, S.Pd</h3><p>Guru Kelas 1A</p></div></div>
+        <div class="card"><img src="guru3.jpg"><div class="info"><h3>Anggi Tilaras, S.Pd</h3><p>Guru Kelas 1B</p></div></div>
+        <div class="card"><img src="guru4.jpg"><div class="info"><h3>Ahmad Badowi, S.Pd</h3><p>Guru Kelas 2</p></div></div>
+        <div class="card"><img src="guru5.jpg"><div class="info"><h3>Muhksinin, S.Pd</h3><p>Guru Kelas 3</p></div></div>
+        <div class="card"><img src="guru6.jpg"><div class="info"><h3>Saefudin, S.Pd</h3><p>Guru Kelas 4</p></div></div>
+        <div class="card"><img src="guru7.jpg"><div class="info"><h3>Dwi Riyanti, S.Pd</h3><p>Guru Kelas 5</p></div></div>
+        <div class="card"><img src="guru8.jpg"><div class="info"><h3>Purnomo, S.Pd</h3><p>Guru Kelas 6</p></div></div>
+        <div class="card"><img src="guru9.jpg"><div class="info"><h3>Khoriratun Naim</h3><p>Guru Agama Islam</p></div></div>
+        <div class="card"><img src="guru10.jpg"><div class="info"><h3>Willy Prayoga</h3><p>Guru Olahraga</p></div></div>
+        <div class="card"><img src="guru11.jpg"><div class="info"><h3>Irtiqoh, SE</h3><p>Operator</p></div></div>
+        <div class="card"><img src="guru12.jpg"><div class="info"><h3>Lufi Ahsani Takwim, S.Pd</h3><p>Penjaga Sekolah</p></div></div>
+    </div>
 </div>
 
-<footer>
-    <p>Copyright &copy; 2026 | SDN PODODADI 1</p>
-</footer>
+<footer><p>Copyright &copy; 2026 | SDN PODODADI 1</p></footer>
 
 </body>
 </html>
