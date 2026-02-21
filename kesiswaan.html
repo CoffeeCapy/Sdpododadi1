@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kesiswaan - SDN PODODADI 1</title>
+    <style>
+        /* CSS DISAMAKAN DENGAN INDEX.HTML */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #f0f2f5; color: #333; }
+        
+        header { background: #004a99; color: white; padding: 25px; text-align: center; border-bottom: 5px solid #ffcc00; }
+        header img { width: 80px; margin-bottom: 10px; }
+        
+        nav { background: #333; display: flex; justify-content: center; position: sticky; top: 0; z-index: 1000; }
+        nav a { color: white; padding: 14px 20px; text-decoration: none; font-size: 14px; }
+        nav a:hover { background-color: #ffcc00; color: #333; }
+
+        .container { display: flex; max-width: 1200px; margin: 20px auto; gap: 20px; padding: 0 15px; }
+        .main-content { flex: 3; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .sidebar { flex: 1; }
+        
+        .widget { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .widget h3 { border-left: 4px solid #ffcc00; padding-left: 10px; margin-bottom: 15px; color: #004a99; }
+        
+        h2 { color: #004a99; border-bottom: 2px solid #ffcc00; display: inline-block; margin-bottom: 20px; }
+        .ekstra-list { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
+        .ekstra-item { background: #f9f9f9; padding: 15px; border-radius: 5px; border-left: 4px solid #004a99; }
+
+        footer { background: #222; color: white; padding: 30px; text-align: center; margin-top: 40px; }
+        
+        @media (max-width: 768px) { 
+            .container { flex-direction: column; }
+            .ekstra-list { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <img src="logo.png" alt="Logo Tut Wuri Handayani">
+    <h1>SDN PODODADI 1</h1>
+    <p>Bidang Kesiswaan & Ekstrakurikuler</p>
+</header>
+
+<nav>
+    <a href="index.html">Beranda</a>
+    <a href="profil.html">Profil Sekolah</a>
+    <a href="guru.html">Data Guru</a>
+    <a href="kesiswaan.html">Kesiswaan</a>
+    <a href="kontak.html">Kontak</a>
+</nav>
+
+<div class="container">
+    <div class="main-content">
+        <h2>Kegiatan Kesiswaan</h2>
+        <p>Bidang kesiswaan SDN Pododadi 1 berfokus pada pengembangan karakter, bakat, dan minat siswa melalui berbagai kegiatan positif di luar jam pelajaran formal.</p>
+        
+        <h3 style="margin-top:25px;">Ekstrakurikuler Wajib & Pilihan</h3>
+        <div class="ekstra-list">
+            <div class="ekstra-item">
+                <strong>🍀 Pramuka</strong>
+                <p style="font-size: 14px; color: #666;">Melatih kemandirian, kedisiplinan, dan kerjasama tim (Wajib).</p>
+            </div>
+            <div class="ekstra-item">
+                <strong>⚽ Olahraga</strong>
+                <p style="font-size: 14px; color: #666;">Mengembangkan bakat dalam bidang sepak bola, voli, dan atletik.</p>
+            </div>
+            <div class="ekstra-item">
+                <strong>🎨 Seni Tari & Musik</strong>
+                <p style="font-size: 14px; color: #666;">Melestarikan budaya daerah melalui tarian dan paduan suara.</p>
+            </div>
+            <div class="ekstra-item">
+                <strong>📖 Keagamaan / BTQ</strong>
+                <p style="font-size: 14px; color: #666;">Pembinaan akhlak dan kemampuan membaca tulis Al-Qur'an.</p>
+            </div>
+        </div>
+
+        <h3 style="margin-top:25px;">Organisasi Siswa</h3>
+        <p>Sekolah mendukung pembentukan jiwa kepemimpinan melalui organisasi internal siswa dan dokter kecil untuk memantau kesehatan lingkungan sekolah.</p>
+    </div>
+
+    <div class="sidebar">
+        <div class="widget">
+            <h3>Agenda Siswa</h3>
+            <ul style="list-style: none; font-size: 14px; line-height: 2;">
+                <li>📅 Senin: Upacara Bendera</li>
+                <li>📅 Jumat: Senam Sehat / Bersih</li>
+                <li>📅 Sabtu: Pramuka & Ekstra</li>
+            </ul>
+        </div>
+        
+        <div class="widget">
+            <h3>Prestasi Siswa</h3>
+            <p style="font-size: 14px; font-style: italic;">"Segera hadir daftar prestasi membanggakan siswa SDN Pododadi 1."</p>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>Copyright &copy; 2026 | SDN PODODADI 1</p>
+</footer>
+
+</body>
+</html>
