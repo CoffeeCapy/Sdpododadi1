@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SDN PODODADI 1 - Website Resmi Sekolah</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f0f2f5; color: #333; }
+        
+        /* Header & Logo */
+        header { background: #004a99; color: white; padding: 25px; text-align: center; border-bottom: 5px solid #ffcc00; }
+        header h1 { font-size: 28px; text-transform: uppercase; letter-spacing: 1px; }
+        header p { font-size: 14px; margin-top: 5px; opacity: 0.9; }
+        
+        /* Navigasi */
+        nav { background: #333; overflow: hidden; display: flex; justify-content: center; position: sticky; top: 0; z-index: 1000; }
+        nav a { color: white; padding: 14px 20px; text-decoration: none; text-align: center; font-size: 14px; transition: 0.3s; }
+        nav a:hover { background-color: #ffcc00; color: #333; }
+
+        /* Main Layout */
+        .container { display: flex; max-width: 1200px; margin: 20px auto; gap: 20px; padding: 0 15px; }
+        
+        /* Konten Utama (Kiri) */
+        .main-content { flex: 3; }
+        .hero { background: #fff; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .hero img { width: 100%; border-radius: 5px; margin: 15px 0; border: 1px solid #ddd; }
+        
+        /* Sidebar (Kanan) */
+        .sidebar { flex: 1; }
+        .widget { background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .widget h3 { border-left: 4px solid #ffcc00; padding-left: 10px; margin-bottom: 15px; font-size: 16px; color: #004a99; background: #f9f9f9; padding-top: 5px; padding-bottom: 5px; }
+        .widget ul { list-style: none; }
+        .widget ul li { padding: 10px 0; border-bottom: 1px solid #eee; font-size: 14px; }
+        .widget ul li a { text-decoration: none; color: #333; }
+        .widget ul li a:hover { color: #004a99; font-weight: bold; }
+
+        /* Berita & Artikel */
+        .post-card { display: flex; gap: 15px; background: white; padding: 15px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .post-card img { width: 100px; height: 80px; object-fit: cover; border-radius: 4px; }
+        .post-info h4 { font-size: 16px; margin-bottom: 5px; color: #004a99; }
+        .post-info p { font-size: 13px; color: #666; }
+
+        /* Footer */
+        footer { background: #222; color: white; padding: 30px 20px; text-align: center; margin-top: 40px; }
+        
+        @media (max-width: 768px) {
+            .container { flex-direction: column; }
+            nav { flex-wrap: wrap; }
+            header h1 { font-size: 22px; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>SDN PODODADI 1</h1>
+    <p>Mencetak Generasi Unggul, Berakhlak Mulia, dan Terampil</p>
+</header>
+
+<nav>
+    <a href="#">Beranda</a>
+    <a href="#">Profil Sekolah</a>
+    <a href="#">Data Guru</a>
+    <a href="#">Kesiswaan</a>
+    <a href="#">Berita</a>
+    <a href="#">Kontak</a>
+</nav>
+
+<div class="container">
+    <div class="main-content">
+        <div class="hero">
+            <h2>Selamat Datang di Portal Resmi SDN Pododadi 1</h2>
+            <p style="margin-top: 10px;">Media komunikasi dan informasi digital untuk seluruh warga sekolah dan masyarakat.</p>
+            <img src="https://via.placeholder.com/800x400/004a99/FFFFFF?text=Foto+SDN+Pododadi+1" alt="Sekolah SDN Pododadi 1">
+            <p style="font-size: 14px; line-height: 1.6;">Sebagai lembaga pendidikan, SDN Pododadi 1 terus berinovasi dalam pelayanan informasi publik. Website ini hadir sebagai wadah kreativitas siswa dan transparansi informasi sekolah kepada orang tua murid dan masyarakat luas.</p>
+        </div>
+
+        <h3 style="margin-bottom: 15px; border-bottom: 2px solid #333; display: inline-block;">Kabar Terkini</h3>
+        
+        <div class="post-card">
+            <img src="https://via.placeholder.com/100" alt="berita">
+            <div class="post-info">
+                <h4>Persiapan Ujian Semester Genap 2026</h4>
+                <p>21 Februari 2026 | Info Akademik</p>
+                <p>Seluruh siswa diharapkan mempersiapkan diri untuk mengikuti ujian yang akan dilaksanakan...</p>
+            </div>
+        </div>
+
+        <div class="post-card">
+            <img src="https://via.placeholder.com/100" alt="berita">
+            <div class="post-info">
+                <h4>Penerimaan Peserta Didik Baru (PPDB)</h4>
+                <p>10 Februari 2026 | Pengumuman</p>
+                <p>Pendaftaran siswa baru tahun ajaran 2026/2027 telah dibuka secara online melalui website ini.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <div class="widget">
+            <h3>Kepala Sekolah</h3>
+            <center><img src="https://via.placeholder.com/120" style="border-radius: 50%; margin-bottom: 10px; border: 3px solid #ffcc00;"></center>
+            <p style="text-align: center; font-weight: bold; font-size: 14px;">Kepala Sekolah SDN Pododadi 1</p>
+            <p style="text-align: center; font-size: 12px; color: #666; font-style: italic;">"Pendidikan adalah senjata paling mematikan di dunia, karena dengan itu Anda bisa mengubah dunia."</p>
+        </div>
+
+        <div class="widget">
+            <h3>Menu Utama</h3>
+            <ul>
+                <li><a href="#">Visi dan Misi</a></li>
+                <li><a href="#">Struktur Organisasi</a></li>
+                <li><a href="#">Kalender Pendidikan</a></li>
+                <li><a href="#">Ekstrakurikuler</a></li>
+                <li><a href="#">Galeri Kegiatan</a></li>
+            </ul>
+        </div>
+        
+        <div class="widget">
+            <h3>Kontak Kami</h3>
+            <p style="font-size: 13px; margin-bottom: 5px;">📍 Lokasi: Desa Pododadi, Kec. [Isi Kecamatan], Kab. [Isi Kabupaten]</p>
+            <p style="font-size: 13px;">📞 Telp: 08XXXXXXXXXX</p>
+            <p style="font-size: 13px;">📧 Email: info@sdnpododadi1.sch.id</p>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>Copyright &copy; 2026 | SDN PODODADI 1</p>
+    <p style="font-size: 12px; color: #aaa; margin-top: 5px;">Dikelola oleh Tim Media SDN Pododadi 1</p>
+</footer>
+
+</body>
+</html>
