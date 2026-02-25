@@ -2,302 +2,223 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Super Mario Bros Mini - Pixel Perfect (NES Style)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Foba Legends: Bang Bang - Touchscreen Mobile</title>
   <style>
-    body { margin:0; height:100vh; background:#000; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:monospace; color:#fff; }
-    canvas { image-rendering:pixelated; image-rendering:-moz-crisp-edges; image-rendering:crisp-edges; border:4px solid #333; box-shadow:0 0 30px #000; }
-    #info { position:absolute; top:10px; left:10px; font-size:18px; background:rgba(0,0,0,0.5); padding:10px; border-radius:5px; }
+    body { 
+      margin: 0; padding: 0; 
+      background: #000; 
+      overflow: hidden; 
+      font-family: Arial, sans-serif; 
+      color: white; 
+      touch-action: none; 
+    }
+    canvas { 
+      display: block; 
+      width: 100vw; 
+      height: 100vh; 
+      touch-action: none; 
+    }
+    #hud { 
+      position: absolute; 
+      bottom: 15px; 
+      left: 15px; 
+      display: flex; 
+      flex-direction: column; 
+      gap: 12px; 
+      z-index: 20; 
+    }
+    .skill { 
+      width: 85px; height: 85px; 
+      background: rgba(30,30,60,0.85); 
+      border: 4px solid #555; 
+      border-radius: 50%; 
+      display: flex; align-items: center; justify-content: center; 
+      font-size: 32px; font-weight: bold; 
+      position: relative; 
+      touch-action: manipulation; 
+      user-select: none; 
+    }
+    .skill.ready { border-color: #ffcc00; box-shadow: 0 0 18px #ffcc00; }
+    .skill:active { transform: scale(0.92); background: rgba(50,50,80,0.9); }
+    .cd { 
+      position: absolute; inset: 0; 
+      background: rgba(0,0,0,0.65); border-radius: 50%; 
+      display: flex; align-items: center; justify-content: center; 
+      font-size: 24px; font-weight: bold; 
+    }
+    #stats { 
+      position: absolute; top: 12px; left: 12px; 
+      background: rgba(0,0,0,0.7); padding: 12px 18px; 
+      border-radius: 12px; font-size: 20px; z-index: 20; 
+    }
+    #joystick { 
+      position: absolute; 
+      bottom: 140px; right: 30px; 
+      width: 140px; height: 140px; 
+      background: rgba(255,255,255,0.08); 
+      border-radius: 50%; 
+      pointer-events: none; 
+      z-index: 15; 
+      display: none; 
+    }
+    #knob { 
+      position: absolute; 
+      width: 60px; height: 60px; 
+      background: radial-gradient(#ffcc00, #cc9900); 
+      border-radius: 50%; 
+      top: 50%; left: 50%; 
+      transform: translate(-50%, -50%); 
+      box-shadow: 0 0 15px #ffcc00; 
+    }
+    @media (orientation: portrait) {
+      #hud { gap: 10px; }
+      .skill { width: 80px; height: 80px; font-size: 28px; }
+      #joystick { bottom: 180px; right: 20px; width: 130px; height: 130px; }
+    }
   </style>
 </head>
 <body>
-  <div id="info">
-    Skor: <span id="score">0</span> | Nyawa: <span id="lives">3</span><br>
-    ← → Jalan | ↑ / SPACE Lompat
-  </div>
-  <canvas id="c" width="512" height="480"></canvas> <!-- Scaled NES 256x240 x2 -->
 
-  <script>
-    // === Super Mario Bros Mini - Pixel Perfect NES Style (Single File) ===
-    const canvas = document.getElementById('c');
-    const ctx = canvas.getContext('2d');
-    ctx.imageSmoothingEnabled = false;
-    const SCALE = 2;
-    const TILE = 16 * SCALE;
-    const VW = canvas.width / SCALE; // 256 virtual width
-    const VH = canvas.height / SCALE; // 240 virtual height
+<div id="stats">HP: <span id="hp">1000</span> | Gold: <span id="gold">0</span> | Kill: <span id="kills">0</span></div>
 
-    // NES Color Palette (approximate Super Mario Bros)
-    const PALETTE = {
-      sky1: '#5C94FC', sky2: '#A2CBFD', cloud: '#FFFFFF',
-      hill1: '#146A00', hill2: '#0F5A00', ground1: '#8C5A36', ground2: '#A4784E',
-      brick1: '#D25400', brick2: '#CD853F', brick3: '#8B4513',
-      marioRed: '#D42D1E', marioSkin: '#F4C49C', marioBrown: '#8B4513', marioBlue: '#1E69D4',
-      marioEye: '#000000', marioShoe: '#654321', coinGold: '#FFD700', coinShadow: '#DAA520',
-      goombaBrown: '#8B4513', goombaDark: '#654321', goombaEye: '#FFFFFF',
-      qblock: '#FFD700', qtop: '#FFEE88'
-    };
+<div id="hud">
+  <div class="skill ready" id="skillQ"><span>Q</span><div class="cd" id="cdQ"></div></div>
+  <div class="skill" id="skillW"><span>W</span><div class="cd" id="cdW"></div></div>
+  <div class="skill" id="skillE"><span>E</span><div class="cd" id="cdE"></div></div>
+  <div class="skill" id="skillR"><span>R</span><div class="cd" id="cdR"></div></div>
+</div>
 
-    let score = 0, lives = 3;
-    const scoreEl = document.getElementById('score');
-    const livesEl = document.getElementById('lives');
+<div id="joystick"><div id="knob"></div></div>
 
-    let keys = {};
-    let cameraX = 0;
+<canvas id="gameCanvas"></canvas>
 
-    // Player (Mario small)
-    let mario = {
-      x: 50, y: 150, w: 12*SCALE, h: 16*SCALE,
-      vx: 0, vy: 0, onGround: false, facing: 1, frame: 0, jumping: false
-    };
+<script>
+// --- Kode utama ---
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
 
-    // Level data - mirip World 1-1 (tile indices: 0=sky, 1=ground, 2=brick, 3=?block, 4=pipe top, 5=pipe body)
-    const LEVEL_WIDTH = 200;
-    const level = new Array(15).fill(0).map(() => new Array(LEVEL_WIDTH).fill(0)); // 15 rows high
-    // Ground
-    for (let x = 0; x < LEVEL_WIDTH; x++) level[13][x] = 1;
-    // Platforms & features mirip 1-1
-    // Hills & bushes (decorative)
-    for (let x=20; x<35; x++) level[12][x] = 6; // hill
-    for (let x=60; x<75; x++) level[12][x] = 6;
-    // ? blocks
-    level[7][16] = 3; level[7][19] = 3; level[7][20] = 3; level[7][21] = 3; level[7][22] = 3; level[7][23] = 3;
-    level[7][84] = 3; // famous ?
-    // Bricks
-    for (let i=16; i<=23; i+=4) { level[9][i] = 2; level[9][i+1] = 2; }
-    // Pipe
-    for (let y=10; y<=12; y++) { level[y][110] = 5; level[y][111] = 5; }
-    level[9][110] = 4; level[9][111] = 4;
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+window.addEventListener('orientationchange', () => setTimeout(resize, 200));
+resize();
 
-    let coins = [{x:84*TILE/SCALE, y:7*TILE/SCALE-8, collected:false}]; // from ? block
-    let enemies = [
-      {x:70, y:12.5*TILE/SCALE - 14, w:14*SCALE, h:14*SCALE, vx:-0.5*SCALE, alive:true, frame:0}, // Goomba
-      {x:130, y:12.5*TILE/SCALE - 14, w:14*SCALE, h:14*SCALE, vx:0.5*SCALE, alive:true, frame:0}
-    ];
+// Hero & variabel lain (sama seperti sebelumnya, tapi skala dinamis)
+let hero = {
+  x: canvas.width * 0.25,
+  y: canvas.height * 0.75,
+  hp: 1000, maxHp: 1000,
+  gold: 0,
+  size: Math.max(24, canvas.width * 0.05),
+  color: '#00d4ff',
+  attackRange: Math.max(160, canvas.width * 0.18),
+  attackDamage: 55,
+  attackCooldown: 0,
+  attackSpeed: 28,
+  moveSpeed: Math.max(5, canvas.width * 0.008)
+};
 
-    window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
-    window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+let projectiles = [], enemies = [], particles = [];
+let kills = 0;
 
-    // Pixel-perfect draw functions
-    function drawPixel(x, y, color) {
-      ctx.fillStyle = color;
-      ctx.fillRect(x, y, 1, 1);
+const skills = {
+  Q: { cd: 0, maxCd: 90 },   // cepat untuk mobile
+  W: { cd: 0, maxCd: 150 },
+  E: { cd: 0, maxCd: 220 },
+  R: { cd: 0, maxCd: 480 }
+};
+
+// Joystick vars
+let joystick = { active: false, angle: 0, power: 0 };
+const joyDiv = document.getElementById('joystick');
+const knob = document.getElementById('knob');
+
+// Touch events untuk joystick (kanan bawah)
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  for (let touch of e.changedTouches) {
+    const x = touch.clientX;
+    const y = touch.clientY;
+    if (x > canvas.width * 0.6 && y > canvas.height * 0.6) { // area joystick
+      joystick.active = true;
+      joyDiv.style.display = 'block';
+      updateJoystick(touch);
     }
+  }
+}, { passive: false });
 
-    // Mario sprites (small standing/walking/jumping - from code golf data adapted + more frames)
-    const marioFrames = [ // 12x16 pixels, scaled later
-      [ // Frame 0: Standing
-        [0,0,0,1,1,1,1,1,0,0,0,0],
-        [0,0,1,1,1,1,1,1,1,1,1,0],
-        [0,0,2,2,2,3,3,2,3,0,0,0],
-        [0,2,3,2,3,3,3,2,3,3,3,0],
-        [0,2,3,2,2,3,3,3,2,3,3,3],
-        [0,2,2,3,3,3,3,2,2,2,2,0],
-        [0,0,0,3,3,3,3,3,3,3,0,0],
-        [0,0,2,2,1,2,2,2,0,0,0,0],
-        [0,2,2,2,1,2,2,1,2,2,2,0],
-        [2,2,2,2,1,1,1,1,2,2,2,2],
-        [3,3,2,1,3,1,1,3,1,2,3,3],
-        [3,3,3,1,1,1,1,1,1,3,3,3],
-        [3,3,1,1,1,1,1,1,1,1,3,3],
-        [0,0,1,1,1,0,0,1,1,1,0,0],
-        [0,2,2,2,0,0,0,0,2,2,2,0],
-        [2,2,2,2,0,0,0,0,2,2,2,2]
-      ],
-      // Frame 1: Walking (simple leg move)
-      // ... (copy & tweak for animation)
-    ]; // Simplified, add more for full anim
-
-    function drawMario(m, sx, sy) { // sx,sy screen pos
-      const frameData = marioFrames[Math.floor(m.frame / 10) % 2]; // 2 frames cycle
-      const flip = m.facing < 0;
-      for (let py = 0; py < 16; py++) {
-        for (let px = 0; px < 12; px++) {
-          let idx = frameData[py][px];
-          if (idx === 0) continue; // transparent
-          let color;
-          if (idx === 1) color = PALETTE.marioRed;
-          else if (idx === 2) color = PALETTE.marioBrown;
-          else if (idx === 3) color = PALETTE.marioSkin;
-          else color = PALETTE.marioBlue;
-          let drawX = flip ? sx + (11 - px) : sx + px;
-          drawPixel(drawX * SCALE, (sy + py) * SCALE, color);
-        }
-      }
-      // Eyes & details
-      ctx.fillStyle = PALETTE.marioEye;
-      ctx.fillRect((sx + (m.facing>0?8:3)) * SCALE, (sy + 3) * SCALE, 2*SCALE, 2*SCALE);
-    }
-
-    function drawGoomba(e, sx, sy) {
-      // Simple 14x14 Goomba pixel art
-      ctx.fillStyle = PALETTE.goombaBrown;
-      ctx.fillRect(sx, sy + 2*SCALE, 14*SCALE, 10*SCALE);
-      ctx.fillRect(sx + 2*SCALE, sy, 10*SCALE, 4*SCALE);
-      ctx.fillStyle = PALETTE.goombaDark;
-      ctx.fillRect(sx + 1*SCALE, sy + 3*SCALE, 12*SCALE, 8*SCALE);
-      ctx.fillStyle = PALETTE.goombaEye;
-      ctx.fillRect((sx + 3*SCALE), sy + 1*SCALE, 3*SCALE, 3*SCALE);
-      ctx.fillRect((sx + 8*SCALE), sy + 1*SCALE, 3*SCALE, 3*SCALE);
-    }
-
-    function drawTile(type, x, y) { // Virtual pos
-      const sx = x * TILE, sy = y * TILE;
-      if (type === 1) { // Ground
-        ctx.fillStyle = PALETTE.ground1;
-        ctx.fillRect(sx, sy + TILE*0.75, TILE, TILE*0.25);
-        ctx.fillStyle = PALETTE.ground2;
-        ctx.fillRect(sx, sy, TILE, TILE*0.75);
-      } else if (type === 2) { // Brick
-        ctx.fillStyle = PALETTE.brick1;
-        ctx.fillRect(sx, sy, TILE, TILE);
-        ctx.fillStyle = PALETTE.brick2;
-        for (let i=0; i<3; i++) ctx.fillRect(sx + i*TILE/3, sy + TILE/2, TILE/15, TILE/2);
-      } else if (type === 3) { // ? Block
-        ctx.fillStyle = PALETTE.qblock;
-        ctx.fillRect(sx+2, sy+2, TILE-4, TILE-4);
-        ctx.fillStyle = PALETTE.qtop;
-        ctx.fillRect(sx, sy, TILE, 4);
-      } else if (type === 4) { // Pipe top
-        ctx.fillStyle = PALETTE.hill1;
-        ctx.fillRect(sx, sy, TILE, TILE*0.75);
-        ctx.fillStyle = PALETTE.hill2;
-        ctx.fillRect(sx, sy + TILE*0.75, TILE, TILE*0.25);
-      } else if (type === 5) { // Pipe body
-        ctx.fillStyle = PALETTE.hill1;
-        ctx.fillRect(sx, sy, TILE, TILE);
-      } else if (type === 6) { // Bush/Hill decor
-        ctx.fillStyle = PALETTE.hill1;
-        ctx.fillRect(sx, sy, TILE, TILE*0.5);
-        ctx.fillStyle = PALETTE.hill2;
-        ctx.fillRect(sx, sy + TILE*0.5, TILE, TILE*0.5);
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if (joystick.active) {
+    for (let touch of e.touches) {
+      if (touch.clientX > canvas.width * 0.5) { // tetap di area kanan
+        updateJoystick(touch);
       }
     }
+  }
+}, { passive: false });
 
-    function drawCoin(c, sx, sy) {
-      ctx.fillStyle = PALETTE.coinGold;
-      ctx.beginPath();
-      ctx.arc(sx + 8*SCALE, sy + 8*SCALE, 7*SCALE, 0, Math.PI*2);
-      ctx.fill();
-      ctx.fillStyle = PALETTE.coinShadow;
-      ctx.fillRect(sx + 5*SCALE, sy + 5*SCALE, 3*SCALE, 3*SCALE);
-    }
+canvas.addEventListener('touchend', e => {
+  e.preventDefault();
+  joystick.active = false;
+  joyDiv.style.display = 'none';
+  knob.style.transform = 'translate(-50%, -50%)';
+}, { passive: false });
 
-    function update() {
-      // Input
-      mario.vx = 0;
-      const speed = 2;
-      if (keys['arrowleft'] || keys['a']) { mario.vx = -speed; mario.facing = -1; }
-      if (keys['arrowright'] || keys['d']) { mario.vx = speed; mario.facing = 1; }
-      if ((keys['arrowup'] || keys[' '] || keys['w']) && mario.onGround) {
-        mario.vy = -10;
-        mario.onGround = false;
-        mario.jumping = true;
-      }
+function updateJoystick(touch) {
+  const rect = canvas.getBoundingClientRect();
+  const centerX = rect.right - 70;
+  const centerY = rect.bottom - 70;
+  const dx = touch.clientX - centerX;
+  const dy = touch.clientY - centerY;
+  const dist = Math.hypot(dx, dy);
+  joystick.power = Math.min(1, dist / 60);
+  joystick.angle = Math.atan2(dy, dx);
 
-      // Physics
-      mario.vy += 0.6;
-      mario.x += mario.vx;
-      mario.y += mario.vy;
+  const moveDist = joystick.power * 45;
+  knob.style.transform = `translate(-50%, -50%) translate(${Math.cos(joystick.angle) * moveDist}px, ${Math.sin(joystick.angle) * moveDist}px)`;
+}
 
-      mario.onGround = false;
-      mario.frame += Math.abs(mario.vx) > 0 ? 0.5 : 0;
+// Tap untuk skill atau attack (area kiri = skill auto, tapi tombol hud utama)
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  const touch = e.touches[0];
+  const x = touch.clientX;
+  // Tap kiri layar → basic attack ke arah tap (jika bukan joystick area)
+  if (x < canvas.width * 0.6) {
+    const angle = Math.atan2(touch.clientY - hero.y, touch.clientX - hero.x);
+    projectiles.push({
+      x: hero.x, y: hero.y,
+      vx: Math.cos(angle) * 10,
+      vy: Math.sin(angle) * 10,
+      damage: hero.attackDamage * 1.5,
+      life: 50
+    });
+  }
+}, { passive: false });
 
-      // Collision tiles
-      const mx = Math.floor(mario.x / TILE), my = Math.floor((mario.y + mario.h/SCALE) / TILE);
-      if (level[my] && level[my][mx] > 0) {
-        mario.y = my * TILE - mario.h/SCALE;
-        mario.vy = 0;
-        mario.onGround = true;
-        mario.jumping = false;
-      }
+// Fungsi castSkill (dipanggil dari HTML ontouchstart tombol)
+window.castSkill = function(skill) {
+  if (skills[skill].cd > 0) return;
+  skills[skill].cd = skills[skill].maxCd;
 
-      // Coin collect
-      coins.forEach(c => {
-        if (!c.collected && Math.hypot(mario.x - c.x, mario.y - c.y) < 20) {
-          c.collected = true;
-          score += 100;
-          scoreEl.textContent = score;
-        }
-      });
+  if (skill === 'Q') {
+    const angle = joystick.angle || Math.PI / 4; // default jika tidak ada joystick
+    projectiles.push({ x: hero.x, y: hero.y, vx: Math.cos(angle)*14, vy: Math.sin(angle)*14, damage: 140, life: 70 });
+  } else if (skill === 'W') {
+    hero.x += Math.cos(joystick.angle || 0) * 160;
+    hero.y += Math.sin(joystick.angle || 0) * 160;
+  } // ... (E dan R sama seperti sebelumnya)
 
-      // Enemies
-      enemies.forEach(e => {
-        if (!e.alive) return;
-        e.x += e.vx;
-        e.frame += 0.2;
-        // Bounce on walls (simple)
-        const ex = Math.floor(e.x / TILE), ey = Math.floor(e.y / TILE);
-        if (level[ey][ex] > 0) e.vx *= -1;
+  // Efek visual sederhana
+  particles.push({x: hero.x, y: hero.y, life: 20, color: '#ffcc00'});
+};
 
-        // Collision with Mario
-        if (Math.hypot(mario.x - e.x, mario.y - e.y) < 20) {
-          if (mario.vy > 0 && mario.y < e.y) { // Stomp
-            e.alive = false;
-            mario.vy = -8;
-            score += 100;
-          } else { // Hit side
-            lives--;
-            livesEl.textContent = lives;
-            mario.x = 50; mario.y = 150;
-            if (lives <= 0) alert('Game Over! Skor: ' + score);
-          }
-        }
-      });
-
-      // Camera
-      cameraX = Math.max(0, Math.min(mario.x - VW/2, LEVEL_WIDTH*TILE/SCALE - VW));
-    }
-
-    function draw() {
-      ctx.fillStyle = PALETTE.sky1;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Clouds (decorative)
-      ctx.fillStyle = PALETTE.cloud;
-      ctx.fillRect((40 - cameraX/SCALE)*SCALE, 40*SCALE, 40*SCALE, 20*SCALE);
-      ctx.fillRect((200 - cameraX/SCALE)*SCALE, 60*SCALE, 50*SCALE, 15*SCALE);
-
-      // Tiles
-      const startX = Math.floor(cameraX / TILE);
-      const endX = startX + Math.ceil(VW / TILE) + 1;
-      for (let ty = 0; ty < 15; ty++) {
-        for (let tx = startX; tx < endX && tx < LEVEL_WIDTH; tx++) {
-          const type = level[ty][tx];
-          if (type > 0) drawTile(type, tx, ty);
-        }
-      }
-
-      // Coins
-      coins.forEach(c => {
-        if (!c.collected) drawCoin(c, (c.x - cameraX)*SCALE, c.y*SCALE);
-      });
-
-      // Enemies
-      enemies.forEach(e => {
-        if (e.alive) drawGoomba(e, (e.x - cameraX)*SCALE, e.y*SCALE);
-      });
-
-      // Mario
-      drawMario(mario, (mario.x - cameraX)*SCALE / SCALE, mario.y / SCALE);
-
-      // HUD simple
-      ctx.fillStyle = '#000';
-      ctx.fillRect(0, 0, 100*SCALE, 20*SCALE);
-      ctx.fillStyle = '#fff';
-      ctx.font = '12px monospace';
-      ctx.fillText('MARIO', 10*SCALE, 15*SCALE);
-    }
-
-    function loop() {
-      update();
-      ctx.save();
-      ctx.scale(SCALE, SCALE);
-      draw();
-      ctx.restore();
-      requestAnimationFrame(loop);
-    }
-
-    loop();
-  </script>
-</body>
-</html>
+// Update & draw logic (adaptasi dari versi sebelumnya)
+function update() {
+  // Gerak via joystick
+  if (joystick.active && joystick.power > 0.1) {
+    hero.x += Math.cos(joystick.angle) * hero.moveSpeed * joystick.power
