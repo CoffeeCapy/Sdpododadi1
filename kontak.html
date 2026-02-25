@@ -1,63 +1,298 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hubungi Kami - SDN 01 PODODADI</title>
-    <style>
-        /* CSS yang sama dengan index.html */
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-        body { background-color: #f0f2f5; }
-        header { background: #004a99; color: white; padding: 25px; text-align: center; border-bottom: 5px solid #ffcc00; }
-        nav { background: #333; display: flex; justify-content: center; position: sticky; top: 0; }
-        nav a { color: white; padding: 14px 20px; text-decoration: none; font-size: 14px; }
-        nav a:hover { background-color: #ffcc00; color: #333; }
-        .container { max-width: 800px; margin: 20px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        
-        .contact-info { margin-bottom: 20px; line-height: 1.8; }
-        .btn-wa { display: inline-block; background: #25d366; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; margin-top: 10px; }
-        
-        footer { background: #222; color: white; padding: 20px; text-align: center; margin-top: 40px; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flappy Bird Foba - Pro Version</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #222;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow: hidden;
+    }
+    #game-container {
+      position: relative;
+      box-shadow: 0 0 50px rgba(0,0,0,0.5);
+    }
+    #game {
+      background: #71c5cf;
+      border: 4px solid #333;
+      display: block;
+    }
+    #ui {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: white;
+      font-size: 40px;
+      font-weight: bold;
+      text-shadow: 3px 3px 0 #000;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .screen {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0,0,0,0.75);
+      color: white;
+      padding: 30px;
+      border-radius: 20px;
+      text-align: center;
+      cursor: pointer;
+      min-width: 200px;
+      border: 2px solid #ffcc00;
+    }
+    h2 { margin-top: 0; color: #ffcc00; }
+    .btn-hint { font-size: 14px; color: #ccc; margin-top: 15px; }
+  </style>
 </head>
 <body>
 
-<header>
-    <h1>SDN 01 PODODADI</h1>
-    <p>Layanan Informasi dan Hubungi Kami</p>
-</header>
+<div id="game-container">
+  <div id="ui">0</div>
 
-<nav>
-    <a href="index.html">Beranda</a>
-    <a href="profil.html">Profil</a>
-    <a href="guru.html">Guru</a>
-    <a href="kontak.html">Kontak</a>
-</nav>
+  <canvas id="game" width="320" height="480"></canvas>
 
-<div class="container">
-    <h2>Hubungi Kami</h2>
-    <hr><br>
-    <div class="contact-info">
-        <p><strong>📍 Alamat:</strong> Desa Pododadi, Kec. karanganyar, Kab. pekalongan </p>
-        <p><strong>📧 Email:</strong> sdnpododadi1@gmail.com</p>
-        <p><strong>📞 Telepon:</strong> 085200657337</p>
-    </div>
+  <div id="startScreen" class="screen">
+    <h2>FLAPPY FOBA</h2>
+    <p>Ketuk atau Tekan <b>SPACE</b><br>untuk terbang!</p>
+    <div class="btn-hint">Siap? Klik untuk Mulai</div>
+  </div>
 
-    <h3>Layanan Cepat (WhatsApp)</h3>
-    <p>Klik tombol di bawah untuk terhubung langsung dengan admin sekolah:</p>
-    <a href="https://wa.me/085200657337" class="btn-wa" target="_blank">Chat via WhatsApp</a>
-
-    <br><br>
-    <h3>Media Sosial</h3>
-    <ul>
-        <li>Facebook: SDN 01 Pododadi</li>
-        <li>Instagram: @sdnpododadi1</li>
-    </ul>
+  <div id="gameOver" class="screen" style="display:none;">
+    <h2>GAME OVER</h2>
+    <p>Skor Anda: <span id="finalScore" style="font-size: 24px; font-weight: bold;">0</span></p>
+    <p id="bestScoreText" style="color: #ffcc00;"></p>
+    <div class="btn-hint">Klik / SPACE untuk main lagi</div>
+  </div>
 </div>
 
-<footer>
-    <p>Copyright &copy; 2026 | SDN 01 PODODADI</p>
-</footer>
+<script>
+/**
+ * FLAPPY BIRD FOBA - FULL VERSION
+ * Perbaikan: Rotasi Karakter, High Score, Smooth Loop
+ */
 
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const scoreEl = document.getElementById('ui');
+const startScreen = document.getElementById('startScreen');
+const gameOverScreen = document.getElementById('gameOver');
+const finalScoreEl = document.getElementById('finalScore');
+const bestScoreText = document.getElementById('bestScoreText');
+
+// Konfigurasi Game
+let bird = { 
+  x: 60, 
+  y: 240, 
+  size: 24, 
+  vel: 0, 
+  gravity: 0.5, 
+  jump: -8, 
+  rotation: 0 
+};
+
+let pipes = [];
+let score = 0;
+let highScore = localStorage.getItem('fobaHighScore') || 0;
+let gameRunning = false;
+let frame = 0;
+
+function resetGame() {
+  bird.y = 240;
+  bird.vel = 0;
+  bird.rotation = 0;
+  pipes = [];
+  score = 0;
+  frame = 0;
+  scoreEl.textContent = score;
+  
+  gameOverScreen.style.display = 'none';
+  startScreen.style.display = 'none';
+  gameRunning = true;
+}
+
+function addPipe() {
+  const gap = 130; 
+  const minHeight = 50;
+  const maxHeight = canvas.height - gap - minHeight - 40;
+  const topHeight = Math.floor(Math.random() * (maxHeight - minHeight) + minHeight);
+  
+  pipes.push({
+    x: canvas.width,
+    top: topHeight,
+    bottom: canvas.height - (topHeight + gap) - 40,
+    passed: false
+  });
+}
+
+function update() {
+  if (!gameRunning) return;
+
+  // Fisika Burung
+  bird.vel += bird.gravity;
+  bird.y += bird.vel;
+  
+  // Rotasi (Menukik ke bawah saat jatuh)
+  bird.rotation = Math.min(Math.PI / 3, Math.max(-Math.PI / 4, bird.vel * 0.1));
+
+  // Cek batas atas & bawah (Tanah)
+  if (bird.y < 0 || bird.y + bird.size > canvas.height - 40) {
+    endGame();
+  }
+
+  // Generate pipa setiap 90 frame (~1.5 detik)
+  frame++;
+  if (frame % 90 === 0) addPipe();
+
+  for (let i = pipes.length - 1; i >= 0; i--) {
+    let p = pipes[i];
+    p.x -= 2.5; // Kecepatan gerak pipa
+
+    // Deteksi Tabrakan
+    if (
+      bird.x + bird.size - 5 > p.x && 
+      bird.x + 5 < p.x + 60 &&
+      (bird.y + 5 < p.top || bird.y + bird.size - 5 > canvas.height - 40 - p.bottom)
+    ) {
+      endGame();
+    }
+
+    // Skor
+    if (!p.passed && p.x + 60 < bird.x) {
+      p.passed = true;
+      score++;
+      scoreEl.textContent = score;
+    }
+
+    // Hapus pipa yang keluar layar
+    if (p.x + 60 < 0) pipes.splice(i, 1);
+  }
+}
+
+function draw() {
+  // 1. Langit
+  ctx.fillStyle = '#71c5cf';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // 2. Gambar Pipa
+  pipes.forEach(p => {
+    // Badan Pipa
+    ctx.fillStyle = '#568203';
+    ctx.fillRect(p.x, 0, 60, p.top);
+    ctx.fillRect(p.x, canvas.height - 40 - p.bottom, 60, p.bottom);
+    
+    // Bibir Pipa (Detail)
+    ctx.fillStyle = '#75b112';
+    ctx.fillRect(p.x - 5, p.top - 20, 70, 20);
+    ctx.fillRect(p.x - 5, canvas.height - 40 - p.bottom, 70, 20);
+    
+    // Garis Pinggir Pipa
+    ctx.strokeStyle = '#2d4501';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(p.x, 0, 60, p.top);
+    ctx.strokeRect(p.x, canvas.height - 40 - p.bottom, 60, p.bottom);
+  });
+
+  // 3. Tanah
+  ctx.fillStyle = '#ded895';
+  ctx.fillRect(0, canvas.height - 40, canvas.width, 40);
+  ctx.fillStyle = '#5e8c31'; // Rumput
+  ctx.fillRect(0, canvas.height - 40, canvas.width, 5);
+
+  // 4. Burung (Dengan Rotasi)
+  ctx.save();
+  ctx.translate(bird.x + bird.size/2, bird.y + bird.size/2);
+  ctx.rotate(bird.rotation);
+
+  // Badan
+  ctx.fillStyle = '#ffcc00';
+  ctx.beginPath();
+  ctx.arc(0, 0, bird.size/2, 0, Math.PI*2);
+  ctx.fill();
+  ctx.strokeStyle = '#000';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Mata
+  ctx.fillStyle = '#fff';
+  ctx.beginPath();
+  ctx.arc(6, -5, 6, 0, Math.PI*2);
+  ctx.fill();
+  ctx.fillStyle = '#000';
+  ctx.beginPath();
+  ctx.arc(8, -5, 2.5, 0, Math.PI*2);
+  ctx.fill();
+
+  // Paruh
+  ctx.fillStyle = '#ff6600';
+  ctx.beginPath();
+  ctx.moveTo(10, 0);
+  ctx.lineTo(22, 0);
+  ctx.lineTo(12, 6);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function gameLoop() {
+  update();
+  draw();
+  requestAnimationFrame(gameLoop);
+}
+
+function endGame() {
+  if (!gameRunning) return;
+  gameRunning = false;
+  
+  if (score > highScore) {
+    highScore = score;
+    localStorage.setItem('fobaHighScore', highScore);
+  }
+  
+  finalScoreEl.textContent = score;
+  bestScoreText.textContent = "Terbaik: " + highScore;
+  gameOverScreen.style.display = 'block';
+}
+
+function jump() {
+  if (!gameRunning && (startScreen.style.display !== 'none' || gameOverScreen.style.display !== 'none')) {
+    resetGame();
+  } else if (gameRunning) {
+    bird.vel = bird.jump;
+  }
+}
+
+// Kontrol
+window.addEventListener('keydown', e => {
+  if (e.code === 'Space' || e.code === 'ArrowUp') {
+    e.preventDefault();
+    jump();
+  }
+});
+
+canvas.addEventListener('mousedown', (e) => {
+  e.preventDefault();
+  jump();
+});
+
+// Support Touch/HP
+canvas.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  jump();
+}, {passive: false});
+
+// Jalankan Loop Utama
+gameLoop();
+
+</script>
 </body>
 </html>
