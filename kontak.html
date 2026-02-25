@@ -1,203 +1,303 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<title>Mario Mini Lengkap - Browser</title>
-<style>
-  body{margin:0;height:100vh;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:Arial;}
-  canvas{border:4px solid #444;box-shadow:0 0 30px #000;background:#87CEEB;}
-  #info{color:#fff;font-size:18px;margin:10px;}
-</style>
+  <meta charset="UTF-8">
+  <title>Super Mario Bros Mini - Pixel Perfect (NES Style)</title>
+  <style>
+    body { margin:0; height:100vh; background:#000; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:monospace; color:#fff; }
+    canvas { image-rendering:pixelated; image-rendering:-moz-crisp-edges; image-rendering:crisp-edges; border:4px solid #333; box-shadow:0 0 30px #000; }
+    #info { position:absolute; top:10px; left:10px; font-size:18px; background:rgba(0,0,0,0.5); padding:10px; border-radius:5px; }
+  </style>
 </head>
 <body>
+  <div id="info">
+    Skor: <span id="score">0</span> | Nyawa: <span id="lives">3</span><br>
+    ← → Jalan | ↑ / SPACE Lompat
+  </div>
+  <canvas id="c" width="512" height="480"></canvas> <!-- Scaled NES 256x240 x2 -->
 
-<div id="info">Skor: <span id="score">0</span> | Gunakan ←→ SPACE/↑ untuk lompat</div>
-<canvas id="c" width="800" height="450"></canvas>
+  <script>
+    // === Super Mario Bros Mini - Pixel Perfect NES Style (Single File) ===
+    const canvas = document.getElementById('c');
+    const ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+    const SCALE = 2;
+    const TILE = 16 * SCALE;
+    const VW = canvas.width / SCALE; // 256 virtual width
+    const VH = canvas.height / SCALE; // 240 virtual height
 
-<script>
-// === Mario Mini Lengkap (Single File HTML) ===
+    // NES Color Palette (approximate Super Mario Bros)
+    const PALETTE = {
+      sky1: '#5C94FC', sky2: '#A2CBFD', cloud: '#FFFFFF',
+      hill1: '#146A00', hill2: '#0F5A00', ground1: '#8C5A36', ground2: '#A4784E',
+      brick1: '#D25400', brick2: '#CD853F', brick3: '#8B4513',
+      marioRed: '#D42D1E', marioSkin: '#F4C49C', marioBrown: '#8B4513', marioBlue: '#1E69D4',
+      marioEye: '#000000', marioShoe: '#654321', coinGold: '#FFD700', coinShadow: '#DAA520',
+      goombaBrown: '#8B4513', goombaDark: '#654321', goombaEye: '#FFFFFF',
+      qblock: '#FFD700', qtop: '#FFEE88'
+    };
 
-const canvas = document.getElementById('c');
-const ctx = canvas.getContext('2d');
-const scoreDisplay = document.getElementById('score');
+    let score = 0, lives = 3;
+    const scoreEl = document.getElementById('score');
+    const livesEl = document.getElementById('lives');
 
-const GRAVITY = 0.7;
-const JUMP = -13;
-const SPEED = 4.2;
+    let keys = {};
+    let cameraX = 0;
 
-let score = 0;
-let keys = {};
-let cameraX = 0;
+    // Player (Mario small)
+    let mario = {
+      x: 50, y: 150, w: 12*SCALE, h: 16*SCALE,
+      vx: 0, vy: 0, onGround: false, facing: 1, frame: 0, jumping: false
+    };
 
-let player = {
-  x: 100, y: 200, w: 32, h: 48,
-  vx: 0, vy: 0, onGround: false,
-  big: false, fire: false, facing: 1
-};
+    // Level data - mirip World 1-1 (tile indices: 0=sky, 1=ground, 2=brick, 3=?block, 4=pipe top, 5=pipe body)
+    const LEVEL_WIDTH = 200;
+    const level = new Array(15).fill(0).map(() => new Array(LEVEL_WIDTH).fill(0)); // 15 rows high
+    // Ground
+    for (let x = 0; x < LEVEL_WIDTH; x++) level[13][x] = 1;
+    // Platforms & features mirip 1-1
+    // Hills & bushes (decorative)
+    for (let x=20; x<35; x++) level[12][x] = 6; // hill
+    for (let x=60; x<75; x++) level[12][x] = 6;
+    // ? blocks
+    level[7][16] = 3; level[7][19] = 3; level[7][20] = 3; level[7][21] = 3; level[7][22] = 3; level[7][23] = 3;
+    level[7][84] = 3; // famous ?
+    // Bricks
+    for (let i=16; i<=23; i+=4) { level[9][i] = 2; level[9][i+1] = 2; }
+    // Pipe
+    for (let y=10; y<=12; y++) { level[y][110] = 5; level[y][111] = 5; }
+    level[9][110] = 4; level[9][111] = 4;
 
-const platforms = [
-  [0, 380, 3000, 70],     // tanah utama
-  [400, 280, 140, 25],
-  [700, 220, 180, 25],
-  [1100, 300, 120, 25],
-  [1500, 180, 200, 25],
-  [2000, 260, 100, 25]
-];
+    let coins = [{x:84*TILE/SCALE, y:7*TILE/SCALE-8, collected:false}]; // from ? block
+    let enemies = [
+      {x:70, y:12.5*TILE/SCALE - 14, w:14*SCALE, h:14*SCALE, vx:-0.5*SCALE, alive:true, frame:0}, // Goomba
+      {x:130, y:12.5*TILE/SCALE - 14, w:14*SCALE, h:14*SCALE, vx:0.5*SCALE, alive:true, frame:0}
+    ];
 
-const coins = [
-  {x:450, y:220, collected:false},
-  {x:750, y:160, collected:false},
-  {x:1150,y:240, collected:false},
-  {x:1550,y:120, collected:false}
-];
+    window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
+    window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
 
-const enemies = [
-  {x:600, y:340, w:32, h:32, vx:-1.2, alive:true}, // Goomba 1
-  {x:900, y:340, w:32, h:32, vx:1.2, alive:true}   // Goomba 2
-];
-
-window.addEventListener('keydown', e=>keys[e.key.toLowerCase()]=true);
-window.addEventListener('keyup',   e=>keys[e.key.toLowerCase()]=false);
-
-function playJump() {
-  const audio = new AudioContext();
-  const osc = audio.createOscillator();
-  osc.type = 'square';
-  osc.frequency.setValueAtTime(600, audio.currentTime);
-  osc.frequency.linearRampToValueAtTime(300, audio.currentTime + 0.1);
-  osc.connect(audio.destination);
-  osc.start();
-  osc.stop(audio.currentTime + 0.12);
-}
-
-function update() {
-  // Kontrol player
-  player.vx = 0;
-  if (keys['arrowleft'] || keys['a']) { player.vx = -SPEED; player.facing = -1; }
-  if (keys['arrowright'] || keys['d']) { player.vx = SPEED; player.facing = 1; }
-  if ((keys[' '] || keys['arrowup'] || keys['w']) && player.onGround) {
-    player.vy = JUMP;
-    player.onGround = false;
-    playJump();
-  }
-
-  player.vy += GRAVITY;
-  player.x += player.vx;
-  player.y += player.vy;
-
-  player.onGround = false;
-
-  // Collision platform
-  platforms.forEach(p => {
-    let [px,py,pw,ph] = p;
-    if (player.x + player.w > px && player.x < px+pw &&
-        player.y + player.h > py && player.y + player.h - player.vy <= py && player.vy >= 0) {
-      player.y = py - player.h;
-      player.vy = 0;
-      player.onGround = true;
+    // Pixel-perfect draw functions
+    function drawPixel(x, y, color) {
+      ctx.fillStyle = color;
+      ctx.fillRect(x, y, 1, 1);
     }
-  });
 
-  // Koin
-  coins.forEach(c => {
-    if (!c.collected && Math.abs(player.x - c.x) < 30 && Math.abs(player.y - c.y) < 40) {
-      c.collected = true;
-      score += 100;
-      scoreDisplay.textContent = score;
-      playJump(); // suara koin sederhana
+    // Mario sprites (small standing/walking/jumping - from code golf data adapted + more frames)
+    const marioFrames = [ // 12x16 pixels, scaled later
+      [ // Frame 0: Standing
+        [0,0,0,1,1,1,1,1,0,0,0,0],
+        [0,0,1,1,1,1,1,1,1,1,1,0],
+        [0,0,2,2,2,3,3,2,3,0,0,0],
+        [0,2,3,2,3,3,3,2,3,3,3,0],
+        [0,2,3,2,2,3,3,3,2,3,3,3],
+        [0,2,2,3,3,3,3,2,2,2,2,0],
+        [0,0,0,3,3,3,3,3,3,3,0,0],
+        [0,0,2,2,1,2,2,2,0,0,0,0],
+        [0,2,2,2,1,2,2,1,2,2,2,0],
+        [2,2,2,2,1,1,1,1,2,2,2,2],
+        [3,3,2,1,3,1,1,3,1,2,3,3],
+        [3,3,3,1,1,1,1,1,1,3,3,3],
+        [3,3,1,1,1,1,1,1,1,1,3,3],
+        [0,0,1,1,1,0,0,1,1,1,0,0],
+        [0,2,2,2,0,0,0,0,2,2,2,0],
+        [2,2,2,2,0,0,0,0,2,2,2,2]
+      ],
+      // Frame 1: Walking (simple leg move)
+      // ... (copy & tweak for animation)
+    ]; // Simplified, add more for full anim
+
+    function drawMario(m, sx, sy) { // sx,sy screen pos
+      const frameData = marioFrames[Math.floor(m.frame / 10) % 2]; // 2 frames cycle
+      const flip = m.facing < 0;
+      for (let py = 0; py < 16; py++) {
+        for (let px = 0; px < 12; px++) {
+          let idx = frameData[py][px];
+          if (idx === 0) continue; // transparent
+          let color;
+          if (idx === 1) color = PALETTE.marioRed;
+          else if (idx === 2) color = PALETTE.marioBrown;
+          else if (idx === 3) color = PALETTE.marioSkin;
+          else color = PALETTE.marioBlue;
+          let drawX = flip ? sx + (11 - px) : sx + px;
+          drawPixel(drawX * SCALE, (sy + py) * SCALE, color);
+        }
+      }
+      // Eyes & details
+      ctx.fillStyle = PALETTE.marioEye;
+      ctx.fillRect((sx + (m.facing>0?8:3)) * SCALE, (sy + 3) * SCALE, 2*SCALE, 2*SCALE);
     }
-  });
 
-  // Musuh
-  enemies.forEach(e => {
-    if (!e.alive) return;
-    e.x += e.vx;
+    function drawGoomba(e, sx, sy) {
+      // Simple 14x14 Goomba pixel art
+      ctx.fillStyle = PALETTE.goombaBrown;
+      ctx.fillRect(sx, sy + 2*SCALE, 14*SCALE, 10*SCALE);
+      ctx.fillRect(sx + 2*SCALE, sy, 10*SCALE, 4*SCALE);
+      ctx.fillStyle = PALETTE.goombaDark;
+      ctx.fillRect(sx + 1*SCALE, sy + 3*SCALE, 12*SCALE, 8*SCALE);
+      ctx.fillStyle = PALETTE.goombaEye;
+      ctx.fillRect((sx + 3*SCALE), sy + 1*SCALE, 3*SCALE, 3*SCALE);
+      ctx.fillRect((sx + 8*SCALE), sy + 1*SCALE, 3*SCALE, 3*SCALE);
+    }
 
-    // Balik arah kalau nabrak dinding (sederhana)
-    if (e.x < 100 || e.x > 2500) e.vx *= -1;
-
-    // Tabrakan player-musuh
-    if (player.x + player.w > e.x && player.x < e.x + e.w &&
-        player.y + player.h > e.y && player.y < e.y + e.h) {
-      if (player.vy > 0 && player.y + player.h - player.vy <= e.y + 10) {
-        // injak dari atas → musuh mati
-        e.alive = false;
-        player.vy = JUMP / 1.5;
-        score += 200;
-        scoreDisplay.textContent = score;
-      } else {
-        // kena samping → reset
-        player.x = 100; player.y = 200; player.vy = 0;
-        score = Math.max(0, score - 300);
-        scoreDisplay.textContent = score;
+    function drawTile(type, x, y) { // Virtual pos
+      const sx = x * TILE, sy = y * TILE;
+      if (type === 1) { // Ground
+        ctx.fillStyle = PALETTE.ground1;
+        ctx.fillRect(sx, sy + TILE*0.75, TILE, TILE*0.25);
+        ctx.fillStyle = PALETTE.ground2;
+        ctx.fillRect(sx, sy, TILE, TILE*0.75);
+      } else if (type === 2) { // Brick
+        ctx.fillStyle = PALETTE.brick1;
+        ctx.fillRect(sx, sy, TILE, TILE);
+        ctx.fillStyle = PALETTE.brick2;
+        for (let i=0; i<3; i++) ctx.fillRect(sx + i*TILE/3, sy + TILE/2, TILE/15, TILE/2);
+      } else if (type === 3) { // ? Block
+        ctx.fillStyle = PALETTE.qblock;
+        ctx.fillRect(sx+2, sy+2, TILE-4, TILE-4);
+        ctx.fillStyle = PALETTE.qtop;
+        ctx.fillRect(sx, sy, TILE, 4);
+      } else if (type === 4) { // Pipe top
+        ctx.fillStyle = PALETTE.hill1;
+        ctx.fillRect(sx, sy, TILE, TILE*0.75);
+        ctx.fillStyle = PALETTE.hill2;
+        ctx.fillRect(sx, sy + TILE*0.75, TILE, TILE*0.25);
+      } else if (type === 5) { // Pipe body
+        ctx.fillStyle = PALETTE.hill1;
+        ctx.fillRect(sx, sy, TILE, TILE);
+      } else if (type === 6) { // Bush/Hill decor
+        ctx.fillStyle = PALETTE.hill1;
+        ctx.fillRect(sx, sy, TILE, TILE*0.5);
+        ctx.fillStyle = PALETTE.hill2;
+        ctx.fillRect(sx, sy + TILE*0.5, TILE, TILE*0.5);
       }
     }
-  });
 
-  // Kamera
-  if (player.x > cameraX + canvas.width * 0.65) cameraX = player.x - canvas.width * 0.65;
-  cameraX = Math.max(0, cameraX);
-}
-
-function draw() {
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-
-  // Langit gradient
-  let gr = ctx.createLinearGradient(0,0,0,canvas.height);
-  gr.addColorStop(0,'#6dd5fa'); gr.addColorStop(1,'#87CEEB');
-  ctx.fillStyle = gr; ctx.fillRect(0,0,canvas.width,canvas.height);
-
-  // Tanah & platform
-  ctx.fillStyle = '#8B4513';
-  platforms.forEach(p => {
-    ctx.fillRect(p[0]-cameraX, p[1], p[2], p[3]);
-  });
-
-  // Koin
-  ctx.fillStyle = '#ffcc00';
-  coins.forEach(c => {
-    if (!c.collected) {
+    function drawCoin(c, sx, sy) {
+      ctx.fillStyle = PALETTE.coinGold;
       ctx.beginPath();
-      ctx.arc(c.x - cameraX, c.y, 12, 0, Math.PI*2);
+      ctx.arc(sx + 8*SCALE, sy + 8*SCALE, 7*SCALE, 0, Math.PI*2);
       ctx.fill();
+      ctx.fillStyle = PALETTE.coinShadow;
+      ctx.fillRect(sx + 5*SCALE, sy + 5*SCALE, 3*SCALE, 3*SCALE);
     }
-  });
 
-  // Musuh (Goomba coklat sederhana)
-  enemies.forEach(e => {
-    if (e.alive) {
-      ctx.fillStyle = '#8B4513';
-      ctx.fillRect(e.x - cameraX, e.y, e.w, e.h);
+    function update() {
+      // Input
+      mario.vx = 0;
+      const speed = 2;
+      if (keys['arrowleft'] || keys['a']) { mario.vx = -speed; mario.facing = -1; }
+      if (keys['arrowright'] || keys['d']) { mario.vx = speed; mario.facing = 1; }
+      if ((keys['arrowup'] || keys[' '] || keys['w']) && mario.onGround) {
+        mario.vy = -10;
+        mario.onGround = false;
+        mario.jumping = true;
+      }
+
+      // Physics
+      mario.vy += 0.6;
+      mario.x += mario.vx;
+      mario.y += mario.vy;
+
+      mario.onGround = false;
+      mario.frame += Math.abs(mario.vx) > 0 ? 0.5 : 0;
+
+      // Collision tiles
+      const mx = Math.floor(mario.x / TILE), my = Math.floor((mario.y + mario.h/SCALE) / TILE);
+      if (level[my] && level[my][mx] > 0) {
+        mario.y = my * TILE - mario.h/SCALE;
+        mario.vy = 0;
+        mario.onGround = true;
+        mario.jumping = false;
+      }
+
+      // Coin collect
+      coins.forEach(c => {
+        if (!c.collected && Math.hypot(mario.x - c.x, mario.y - c.y) < 20) {
+          c.collected = true;
+          score += 100;
+          scoreEl.textContent = score;
+        }
+      });
+
+      // Enemies
+      enemies.forEach(e => {
+        if (!e.alive) return;
+        e.x += e.vx;
+        e.frame += 0.2;
+        // Bounce on walls (simple)
+        const ex = Math.floor(e.x / TILE), ey = Math.floor(e.y / TILE);
+        if (level[ey][ex] > 0) e.vx *= -1;
+
+        // Collision with Mario
+        if (Math.hypot(mario.x - e.x, mario.y - e.y) < 20) {
+          if (mario.vy > 0 && mario.y < e.y) { // Stomp
+            e.alive = false;
+            mario.vy = -8;
+            score += 100;
+          } else { // Hit side
+            lives--;
+            livesEl.textContent = lives;
+            mario.x = 50; mario.y = 150;
+            if (lives <= 0) alert('Game Over! Skor: ' + score);
+          }
+        }
+      });
+
+      // Camera
+      cameraX = Math.max(0, Math.min(mario.x - VW/2, LEVEL_WIDTH*TILE/SCALE - VW));
+    }
+
+    function draw() {
+      ctx.fillStyle = PALETTE.sky1;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Clouds (decorative)
+      ctx.fillStyle = PALETTE.cloud;
+      ctx.fillRect((40 - cameraX/SCALE)*SCALE, 40*SCALE, 40*SCALE, 20*SCALE);
+      ctx.fillRect((200 - cameraX/SCALE)*SCALE, 60*SCALE, 50*SCALE, 15*SCALE);
+
+      // Tiles
+      const startX = Math.floor(cameraX / TILE);
+      const endX = startX + Math.ceil(VW / TILE) + 1;
+      for (let ty = 0; ty < 15; ty++) {
+        for (let tx = startX; tx < endX && tx < LEVEL_WIDTH; tx++) {
+          const type = level[ty][tx];
+          if (type > 0) drawTile(type, tx, ty);
+        }
+      }
+
+      // Coins
+      coins.forEach(c => {
+        if (!c.collected) drawCoin(c, (c.x - cameraX)*SCALE, c.y*SCALE);
+      });
+
+      // Enemies
+      enemies.forEach(e => {
+        if (e.alive) drawGoomba(e, (e.x - cameraX)*SCALE, e.y*SCALE);
+      });
+
+      // Mario
+      drawMario(mario, (mario.x - cameraX)*SCALE / SCALE, mario.y / SCALE);
+
+      // HUD simple
       ctx.fillStyle = '#000';
-      ctx.fillRect(e.x - cameraX + 8, e.y + 8, 6, 6); // mata
-      ctx.fillRect(e.x - cameraX + 18, e.y + 8, 6, 6);
+      ctx.fillRect(0, 0, 100*SCALE, 20*SCALE);
+      ctx.fillStyle = '#fff';
+      ctx.font = '12px monospace';
+      ctx.fillText('MARIO', 10*SCALE, 15*SCALE);
     }
-  });
 
-  // Player (Mario)
-  ctx.fillStyle = player.big ? '#e74c3c' : '#e67e22'; // merah / orange kecil
-  ctx.fillRect(player.x - cameraX, player.y, player.w, player.h);
+    function loop() {
+      update();
+      ctx.save();
+      ctx.scale(SCALE, SCALE);
+      draw();
+      ctx.restore();
+      requestAnimationFrame(loop);
+    }
 
-  // Topi
-  ctx.fillStyle = '#c0392b';
-  ctx.fillRect(player.x - cameraX + 4, player.y - 10, player.w - 8, 14);
-
-  // Wajah
-  ctx.fillStyle = '#f1c40f';
-  ctx.fillRect(player.x - cameraX + 8, player.y + 10, 16, 16);
-
-  // Mata
-  ctx.fillStyle = '#000';
-  ctx.fillRect(player.x - cameraX + (player.facing>0 ? 18:8), player.y + 14, 6, 8);
-}
-
-function loop() {
-  update();
-  draw();
-  requestAnimationFrame(loop);
-}
-
-loop();
-</script>
+    loop();
+  </script>
 </body>
 </html>
